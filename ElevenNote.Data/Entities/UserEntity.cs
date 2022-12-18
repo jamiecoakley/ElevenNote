@@ -21,8 +21,8 @@ namespace ElevenNote.Data.Entities
         [Required]
         public string Password { get; set; }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; } //question marks forced these to be nullable. Once this was changed, had to push migration. **Note: use SMALL migrations to avoid huge undo's if something goes wrong.
+        public string? LastName { get; set; } //user descriptive messages when doing migrations!! #failsafes!
 
         [Required]
         public DateTime DateCreated { get; set; }
