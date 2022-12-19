@@ -2,7 +2,6 @@ using ElevenNote.Data;
 using ElevenNote.Services.User;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
-
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ElevenNote.Services.Token;
@@ -14,24 +13,40 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddAuthentication(opt =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; //Bearer "Magic String"
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(opt =>  //certian parameters in which the bearer authentication is going to work
-{
-    opt.TokenValidationParameters = new TokenValidationParameters
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuerSigningKey = true, //if our API didn't create the token then its REJECTED
-        ValidateIssuer = true,  //things came from US the API
-        ValidateAudience = true, //things came from someone who WE the API RECOGNIZED;
-        ValidateLifetime = true,  //make sure that the token will only last for so long.
-        ClockSkew = TimeSpan.Zero, //Sets the clock for the validation lifetime
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+
+//^^got this from a mix of the module and what Terry gave me (below) - the code Terry had me use gave me an error when it came to Postman; something about the token not being a string or something? Whatever. Mixed them and now it's working.
+
+// builder.Services.AddAuthentication(opt =>
+// {
+//     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; //Bearer "Magic String"
+//     opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+// }).AddJwtBearer(opt =>  //certian parameters in which the bearer authentication is going to work
+// {
+//     opt.TokenValidationParameters = new TokenValidationParameters
+//     {
+//         ValidateIssuerSigningKey = true, //if our API didn't create the token then its REJECTED
+//         ValidateIssuer = true,  //things came from US the API
+//         ValidateAudience = true, //things came from someone who WE the API RECOGNIZED;
+//         ValidateLifetime = true,  //make sure that the token will only last for so long.
+//         ClockSkew = TimeSpan.Zero, //Sets the clock for the validation lifetime
+//         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+//         ValidAudience = builder.Configuration["JwtSettings:Audience"],
+//         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+//     };
+// });
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
