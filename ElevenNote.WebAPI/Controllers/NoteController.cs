@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ElevenNote.Services.Note;
 using Microsoft.AspNetCore.Authorization;
+using ElevenNote.Models.Note;
 
 namespace ElevenNote.WebAPI.Controllers
 {
@@ -40,6 +41,15 @@ namespace ElevenNote.WebAPI.Controllers
         {
             var notes = await _noteService.GetAllNotesAsync();
             return Ok(notes);
+        }
+
+        [HttpGet("{noteId:int}")]
+        public async Task<IActionResult> GetNoteById([FromBody] int noteId)
+        {
+            var detail = await _noteService.GetNoteByIdAsync(noteId);
+            return detail is not null //similar to our service method, we're using a ternary to determine our return type
+            ? Ok(detail) //If the returned value (detail) is not null, return it with a 200 OK
+            : NotFound(); //Otherwise, return a NotFound() 404 response
         }
     }
 }

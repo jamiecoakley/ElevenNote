@@ -55,5 +55,23 @@ namespace ElevenNote.Services.Note
 
             return notes;
         }
+
+        public async Task<NoteDetails> GetNoteByIdAsync(int noteId)
+        {
+            //Find the first note that has the given Id and an OwnerId that matches the requesting userId
+            var noteEntity = await _dbContext.Notes
+                .FirstOrDefaultAsync(e=>
+                    e.Id == noteId && e.OwnerId == _userId);
+            
+            //If noteEntity is null, the return null; otherwise, initialize and return a new NoteDetails.
+            return noteEntity is null ? null : new NoteDetails //<<TERNARY OPERATOR - return null if the entity is not found, and is therefore null; if it is found and therefore not null, then it creates a new NoteDetails with the noteEntity's value assigned to it.
+            {
+                Id = noteEntity.Id,
+                Title = noteEntity.Title,
+                Content = noteEntity.Content,
+                CreatedUtc = noteEntity.CreatedUtc,
+                ModifiedUtc = noteEntity.ModifiedUtc
+            };
+        }
     }
 }
