@@ -89,5 +89,16 @@ namespace ElevenNote.Services.Note
 
             return numberOfChanges == 1; //numberOfChanges is stated to be equal to 1 because only one row is updated (what you see updated in the db in Azure)
         }
+
+        public async Task<bool> DeleteNoteAsync(int noteId)
+        {
+            var noteEntity = await _dbContext.Notes.FindAsync(noteId); //Find the note by the given id
+            if(noteEntity?.OwnerId != _userId) //Validates that the note exists and actually belongs to the user
+                return false;
+
+            //Remove the note from the DbContext and assert that the one change was saved (deleting does entail altering a row)
+            _dbContext.Notes.Remove(noteEntity); 
+            return await _dbContext.SaveChangesAsync() == 1;
+        }
     }
 }
