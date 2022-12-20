@@ -73,5 +73,21 @@ namespace ElevenNote.Services.Note
                 ModifiedUtc = noteEntity.ModifiedUtc
             };
         }
+
+        public async Task<bool> UpdateNoteAsync(NoteUpdate request)
+        {
+            var noteEntity = await _dbContext.Notes.FindAsync(request.Id); //Find the note and validate it's owned by the owner
+            if (noteEntity?.OwnerId != _userId) //Check it it's null at the same time we check ownerId
+                return false;
+
+            //update the entity's properties
+            noteEntity.Title = request.Title;
+            noteEntity.Content = request.Content;
+            noteEntity.ModifiedUtc = DateTimeOffset.Now;
+
+            var numberOfChanges = await _dbContext.SaveChangesAsync(); //Save the changes to the database and capture how many rows were updated
+
+            return numberOfChanges == 1; //numberOfChanges is stated to be equal to 1 because only one row is updated (what you see updated in the db in Azure)
+        }
     }
 }
