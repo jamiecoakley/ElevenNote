@@ -68,7 +68,7 @@ namespace ElevenNote.WebAPI.Controllers
         {
             return await _noteService.DeleteNoteAsync(noteId)
             ? Ok($"Note {noteId} was deleted successfully.")
-            : BadRequest($"Note {noteId} could not be deleted.")
+            : BadRequest($"Note {noteId} could not be deleted.");
         }
     }
 }
